@@ -8,6 +8,7 @@ export interface CopyConfig {
   recursive: boolean;
   timestamp: number;
   name?: string;
+  isFavorite?: boolean;
 }
 
 export interface FileMatch {
@@ -51,7 +52,7 @@ export interface ScanRequestPayload {
 }
 
 // Constants
-export const MAX_HISTORY_ITEMS = 10;
+export const MAX_HISTORY_ITEMS = 20;
 export const STORAGE_KEY = "copy-tool-history";
 export const API_BASE_URL = "http://localhost:8000/api/v1/copy/advanced";
 
@@ -104,5 +105,6 @@ export const createEmptyConfig = (): CopyConfig => ({
   excludePatterns: [...DEFAULT_EXCLUDED_PATTERNS],
   excludeDirectories: [...DEFAULT_EXCLUDED_DIRECTORIES],
   recursive: true,
-  timestamp: Date.now()
+  timestamp: Date.now(),
+  isFavorite: false
 }); 

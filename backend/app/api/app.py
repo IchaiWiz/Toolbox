@@ -6,7 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import httpx
 from fastapi.responses import JSONResponse
 
-from ..routes import analyse, backup, copy, winmerge, duplicate_detection, ai_structure
+# On garde seulement copy
+# from ..routes import analyse, backup, copy, winmerge, duplicate_detection, ai_structure
+from ..routes import copy
 from .endpoints import health_router
 
 
@@ -33,12 +35,12 @@ def create_app() -> FastAPI:
     )
 
     # Inclure les routeurs sans le préfixe /api car ils ont déjà leurs propres préfixes
-    app.include_router(analyse)
-    app.include_router(backup)
+    # app.include_router(analyse)
+    # app.include_router(backup)
     app.include_router(copy)
-    app.include_router(winmerge)
-    app.include_router(duplicate_detection)
-    app.include_router(ai_structure)
+    # app.include_router(winmerge)
+    # app.include_router(duplicate_detection)
+    # app.include_router(ai_structure)
     
     # Ajouter le router de santé
     app.include_router(health_router)
@@ -54,12 +56,12 @@ def create_app() -> FastAPI:
         """
         base_url = "http://localhost:8000"
         services = [
-            "/api/v1/analyse/health",
-            "/api/v1/backup/health", 
+            # "/api/v1/analyse/health",
+            # "/api/v1/backup/health", 
             "/api/v1/copy/health",
-            "/api/v1/winmerge/health",
-            "/api/v1/duplicate/health",
-            "/api/v1/ai-structure/health"
+            # "/api/v1/winmerge/health",
+            # "/api/v1/duplicate/health",
+            # "/api/v1/ai-structure/health"
         ]
         
         results = {}

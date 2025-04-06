@@ -25,13 +25,21 @@ export const truncateText = (text: string, maxLength: number = 50): string => {
 };
 
 /**
- * Formate la date de manière lisible
+ * Formate la date de manière lisible (sans l'heure)
  */
 export const formatDate = (timestamp: number): string => {
   return new Date(timestamp).toLocaleString('fr-FR', {
     day: '2-digit',
     month: '2-digit',
-    year: '2-digit',
+    year: '2-digit'
+  });
+};
+
+/**
+ * Formate l'heure de manière lisible
+ */
+export const formatTime = (timestamp: number): string => {
+  return new Date(timestamp).toLocaleString('fr-FR', {
     hour: '2-digit',
     minute: '2-digit'
   });

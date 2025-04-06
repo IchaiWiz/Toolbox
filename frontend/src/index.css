@@ -1,6 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
-@import url('https://fonts.googleapis.com/css2?family=Bitter:wght@400;500;700&family=Comfortaa:wght@400;600;700&family=Inter:wght@400;500;700&family=Montserrat:wght@400;600;700&family=Nunito:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -76,8 +76,8 @@
   --sidebar-accent-foreground: oklch(0.985 0.002 247.839);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
-  --font-family: 'Roboto', sans-serif;
-  --heading-font-family: 'Roboto', sans-serif;
+  --font-family: 'Inter', sans-serif;
+  --heading-font-family: 'Inter', sans-serif;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-bold: 700;
@@ -115,10 +115,10 @@
   --sidebar-accent-foreground: oklch(0.2 0.05 280);
   --sidebar-border: oklch(0.85 0.05 305);
   --sidebar-ring: oklch(0.7 0.15 310);
-  --font-family: 'Quicksand', sans-serif;
-  --heading-font-family: 'Quicksand', sans-serif;
+  --font-family: 'Inter', sans-serif;
+  --heading-font-family: 'Inter', sans-serif;
   --font-weight-normal: 400;
-  --font-weight-medium: 600;
+  --font-weight-medium: 500;
   --font-weight-bold: 700;
 }
 
@@ -154,10 +154,10 @@
   --sidebar-accent-foreground: oklch(0.25 0.07 140);
   --sidebar-border: oklch(0.80 0.05 120);
   --sidebar-ring: oklch(0.65 0.12 135);
-  --font-family: 'Nunito', sans-serif;
-  --heading-font-family: 'Nunito', sans-serif;
+  --font-family: 'Inter', sans-serif;
+  --heading-font-family: 'Inter', sans-serif;
   --font-weight-normal: 400;
-  --font-weight-medium: 600;
+  --font-weight-medium: 500;
   --font-weight-bold: 700;
 }
 
@@ -193,10 +193,10 @@
   --sidebar-accent-foreground: oklch(0.22 0.05 250);
   --sidebar-border: oklch(0.80 0.03 235);
   --sidebar-ring: oklch(0.60 0.12 240);
-  --font-family: 'Montserrat', sans-serif;
-  --heading-font-family: 'Montserrat', sans-serif;
+  --font-family: 'Inter', sans-serif;
+  --heading-font-family: 'Inter', sans-serif;
   --font-weight-normal: 400;
-  --font-weight-medium: 600;
+  --font-weight-medium: 500;
   --font-weight-bold: 700;
 }
 
@@ -232,10 +232,10 @@
   --sidebar-accent-foreground: oklch(0.97 0.01 50);
   --sidebar-border: oklch(0.80 0.05 40);
   --sidebar-ring: oklch(0.65 0.15 25);
-  --font-family: 'Playfair Display', serif;
-  --heading-font-family: 'Playfair Display', serif;
+  --font-family: 'Inter', sans-serif;
+  --heading-font-family: 'Inter', sans-serif;
   --font-weight-normal: 400;
-  --font-weight-medium: 600;
+  --font-weight-medium: 500;
   --font-weight-bold: 700;
 }
 
@@ -271,8 +271,8 @@
   --sidebar-accent-foreground: oklch(0.15 0.05 150);
   --sidebar-border: oklch(0.60 0.05 145);
   --sidebar-ring: oklch(0.40 0.10 145);
-  --font-family: 'Bitter', serif;
-  --heading-font-family: 'Bitter', serif;
+  --font-family: 'Inter', sans-serif;
+  --heading-font-family: 'Inter', sans-serif;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-bold: 700;
@@ -310,10 +310,10 @@
   --sidebar-accent-foreground: oklch(0.20 0.08 300);
   --sidebar-border: oklch(0.75 0.05 290);
   --sidebar-ring: oklch(0.60 0.12 290);
-  --font-family: 'Comfortaa', cursive;
-  --heading-font-family: 'Comfortaa', cursive;
+  --font-family: 'Inter', sans-serif;
+  --heading-font-family: 'Inter', sans-serif;
   --font-weight-normal: 400;
-  --font-weight-medium: 600;
+  --font-weight-medium: 500;
   --font-weight-bold: 700;
 }
 

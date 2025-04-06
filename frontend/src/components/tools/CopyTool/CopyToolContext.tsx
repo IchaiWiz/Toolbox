@@ -48,6 +48,7 @@ interface CopyToolContextType {
   resetConfig: () => void;
   loadFromHistory: (config: CopyConfig) => void;
   clearHistory: () => void;
+  toggleFavorite: (id: string) => void;
   scanFiles: () => Promise<void>;
   copyToClipboard: () => Promise<void>;
 }
@@ -88,7 +89,7 @@ export function CopyToolProvider({ children }: CopyToolProviderProps) {
   const [excludeDirectoryInput, setExcludeDirectoryInput] = useState("");
 
   // Utiliser le hook de gestion d'historique
-  const { history, saveToHistory, clearHistory } = useHistoryManager();
+  const { history, saveToHistory, clearHistory, toggleFavorite } = useHistoryManager();
 
   // Charger la liste des onglets existants
   useEffect(() => {
@@ -475,6 +476,7 @@ export function CopyToolProvider({ children }: CopyToolProviderProps) {
         resetConfig,
         loadFromHistory,
         clearHistory,
+        toggleFavorite,
         scanFiles,
         copyToClipboard
       }}

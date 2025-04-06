@@ -60,7 +60,8 @@ function ConfigPanelContent() {
     toggleRecursive,
     resetConfig,
     loadFromHistory,
-    clearHistory
+    clearHistory,
+    toggleFavorite
   } = useCopyTool();
   
   return (
@@ -75,7 +76,8 @@ function ConfigPanelContent() {
           <HistoryDialog 
             history={history} 
             onApplyConfig={loadFromHistory} 
-            onClearHistory={clearHistory} 
+            onClearHistory={clearHistory}
+            onToggleFavorite={toggleFavorite} 
           />
         </div>
       </div>

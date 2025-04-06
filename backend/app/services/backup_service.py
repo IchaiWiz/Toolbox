@@ -1,9 +1,10 @@
 """
-Fichier de compatibilité pour les anciennes importations.
-Ce fichier réexporte les fonctions du module backup refactorisé.
+Fichier de service pour les opérations de backup.
+Ce fichier implémente directement les fonctions de sauvegarde.
 """
-# Re-exporter les fonctions depuis le nouveau module
-from .backup import create_backup, get_backup_status, get_backup_list, restore_backup
+# Les fonctions sont maintenant définies directement dans ce fichier
+# Suppression de la référence au module backup qui n'existe plus
+# from .backup import create_backup, get_backup_status, get_backup_list, restore_backup
 
 __all__ = ["create_backup", "get_backup_status", "get_backup_list", "restore_backup"]
 

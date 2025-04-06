@@ -45,13 +45,52 @@ export function useHistoryManager() {
       timestamp: Date.now()
     };
     
+    // Conserver l'état favori si la configuration existe déjà
+    const existingConfig = history.find(item => item.id === configToSave.id);
+    if (existingConfig && existingConfig.isFavorite) {
+      configWithTimestamp.isFavorite = existingConfig.isFavorite;
+    }
+    
     // Ajouter à l'historique et limiter à MAX_HISTORY_ITEMS éléments
-    const newHistory = [
-      configWithTimestamp, 
-      ...history.filter(item => item.id !== configToSave.id)
-    ].slice(0, MAX_HISTORY_ITEMS);
+    // Les favoris sont toujours conservés en premier
+    const nonFavorites = history
+      .filter(item => item.id !== configToSave.id && !item.isFavorite)
+      .sort((a, b) => b.timestamp - a.timestamp);
+    
+    const favorites = history
+      .filter(item => item.id !== configToSave.id && item.isFavorite)
+      .sort((a, b) => b.timestamp - a.timestamp);
+    
+    let newHistory = [configWithTimestamp];
+    
+    // Ajouter d'abord les favoris puis les non-favoris
+    newHistory = [...newHistory, ...favorites, ...nonFavorites];
+    
+    // Limiter le nombre total d'éléments
+    newHistory = newHistory.slice(0, MAX_HISTORY_ITEMS);
     
     setHistory(newHistory);
+  };
+
+  /**
+   * Marquer/démarquer une configuration comme favorite
+   */
+  const toggleFavorite = (id: string) => {
+    const newHistory = history.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          isFavorite: !item.isFavorite
+        };
+      }
+      return item;
+    });
+    
+    // Réordonner pour que les favoris apparaissent en premier
+    const favorites = newHistory.filter(item => item.isFavorite);
+    const nonFavorites = newHistory.filter(item => !item.isFavorite);
+    
+    setHistory([...favorites, ...nonFavorites]);
   };
 
   /**
@@ -62,6 +101,7 @@ export function useHistoryManager() {
   return {
     history,
     saveToHistory,
+    toggleFavorite,
     clearHistory
   };
 } 

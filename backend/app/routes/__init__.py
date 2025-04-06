@@ -7,9 +7,10 @@ Routes de l'API
 # Par exemple: from app.routes import analyse, backup, copy
 # au lieu de: from app.routes.analyse import router as analyse_router
 
-from .analyse import router as analyse
-from .backup import router as backup 
+# On garde seulement copy
+# from .analyse import router as analyse
+# from .backup import router as backup 
 from .copy import router as copy
-from .winmerge import router as winmerge
-from .duplicate_detection import router as duplicate_detection
-from .ai_structure import router as ai_structure
+# from .winmerge import router as winmerge
+# from .duplicate_detection import router as duplicate_detection
+# from .ai_structure import router as ai_structure
