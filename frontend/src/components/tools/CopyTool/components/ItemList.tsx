@@ -81,7 +81,7 @@ export function ItemList({
               </div>
             ) : (
               <>
-                <span className="truncate max-w-[300px]" title={item}>{item}</span>
+                <span className="overflow-x-auto max-w-[300px]" title={item}>{item}</span>
                 {onEdit && (
                   <button
                     onClick={() => handleEditClick(index, item)}

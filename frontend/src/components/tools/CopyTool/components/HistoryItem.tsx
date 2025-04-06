@@ -107,7 +107,7 @@ export function HistoryItem({ item, onApply, onToggleFavorite }: HistoryItemProp
               {item.directories.slice(0, 2).map((dir, index) => (
                 <div key={index} className="flex items-start">
                   <FolderOpen className="h-3 w-3 mr-1 mt-0.5 flex-shrink-0" /> 
-                  <div className="break-all">{dir}</div>
+                  <div className="break-all overflow-x-auto">{dir}</div>
                 </div>
               ))}
               {item.directories.length > 2 && (
@@ -121,7 +121,7 @@ export function HistoryItem({ item, onApply, onToggleFavorite }: HistoryItemProp
               {item.files.slice(0, 2).map((file, index) => (
                 <div key={index} className="flex items-start">
                   <FileText className="h-3 w-3 mr-1 mt-0.5 flex-shrink-0" /> 
-                  <div className="break-all">{file}</div>
+                  <div className="break-all overflow-x-auto">{file}</div>
                 </div>
               ))}
               {item.files.length > 2 && (
@@ -178,7 +178,7 @@ export function HistoryItem({ item, onApply, onToggleFavorite }: HistoryItemProp
               {item.directories.length > 0 ? (
                 <div className="border rounded-md p-2 text-sm max-h-[150px] overflow-y-auto space-y-1">
                   {item.directories.map((dir, i) => (
-                    <div key={i} className="break-all">{dir}</div>
+                    <div key={i} className="break-all overflow-x-auto">{dir}</div>
                   ))}
                 </div>
               ) : (
@@ -195,7 +195,7 @@ export function HistoryItem({ item, onApply, onToggleFavorite }: HistoryItemProp
               {item.files.length > 0 ? (
                 <div className="border rounded-md p-2 text-sm max-h-[150px] overflow-y-auto space-y-1">
                   {item.files.map((file, i) => (
-                    <div key={i} className="break-all">{file}</div>
+                    <div key={i} className="break-all overflow-x-auto">{file}</div>
                   ))}
                 </div>
               ) : (
@@ -223,7 +223,7 @@ export function HistoryItem({ item, onApply, onToggleFavorite }: HistoryItemProp
               {item.excludePatterns.length > 0 ? (
                 <div className="border rounded-md p-2 text-sm max-h-[100px] overflow-y-auto space-y-1">
                   {item.excludePatterns.map((pattern, i) => (
-                    <div key={i} className="break-all">{pattern}</div>
+                    <div key={i} className="break-all overflow-x-auto">{pattern}</div>
                   ))}
                 </div>
               ) : (
@@ -237,7 +237,7 @@ export function HistoryItem({ item, onApply, onToggleFavorite }: HistoryItemProp
               {item.excludeDirectories.length > 0 ? (
                 <div className="border rounded-md p-2 text-sm max-h-[100px] overflow-y-auto space-y-1">
                   {item.excludeDirectories.map((dir, i) => (
-                    <div key={i} className="break-all">{dir}</div>
+                    <div key={i} className="break-all overflow-x-auto">{dir}</div>
                   ))}
                 </div>
               ) : (

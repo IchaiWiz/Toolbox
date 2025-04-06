@@ -16,7 +16,7 @@ export function FileList({ files }: FileListProps) {
       <div className="p-2 space-y-2">
         {files.map((file, index) => (
           <div key={index} className="flex justify-between p-2 bg-secondary/10 rounded text-sm">
-            <div className="truncate flex-1">
+            <div className="overflow-x-auto flex-1">
               <span className="font-mono text-xs bg-secondary/30 rounded px-1.5 py-0.5 mr-2">
                 {file.extension || "?"}
               </span>
