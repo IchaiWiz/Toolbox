@@ -29,7 +29,7 @@ Ce dépôt contient un projet fullstack avec un frontend React et un backend Pyt
 
 1. Clonez le dépôt:
    ```
-   git clone [URL_DU_REPO]
+   git clone https://github.com/IchaiWiz/Toolbox
    ```
 
 2. Accédez au dossier du projet:
