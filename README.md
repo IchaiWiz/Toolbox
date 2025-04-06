@@ -1,6 +1,6 @@
 # Toolbox
 
-Ce dépôt contient un projet fullstack avec un frontend React et un backend Python qui fournit une boîte à outils pour diverses opérations sur les fichiers.
+Ce dépôt contient un projet fullstack avec un frontend React et un backend Python qui fournit une boîte à outils pour diverses opérations sur les fichiers. Ces outils sont particulièrement pertinents pour travailler avec des modèles de langage (LLM) comme ChatGPT ou Claude, facilitant la préparation et l'organisation des données.
 
 > **Note importante:** Actuellement, seul l'outil de copie avancée est implémenté et fonctionnel. Les autres outils (sauvegarde, analyse, WinMerge, détection de doublons, structuration par IA) sont en cours de développement.
 
@@ -90,14 +90,29 @@ Cette commande va:
 Le frontend sera accessible à l'adresse: http://localhost:5173
 Le backend sera accessible à l'adresse: http://localhost:8000
 
+## Tests
+
+Pour exécuter les tests du backend Python:
+
+```
+cd backend
+python -m pytest
+```
+
+Les tests vérifient le bon fonctionnement des routes API et des utilitaires.
+
 ## Fonctionnalités
 
 ### Outil de Copie Avancée (Disponible)
 
 L'outil de copie permet de:
 - Sélectionner des fichiers et dossiers à copier
+- Exclure certains fichiers selon des extensions ou motifs
 - Copier le contenu dans le presse-papier
 - Gérer un historique des opérations de copie
+- Obtenir des statistiques sur les fichiers copiés
+
+Ces fonctionnalités sont particulièrement utiles pour préparer des données à soumettre aux LLM comme ChatGPT ou Claude, en permettant une sélection précise des fichiers de code source.
 
 ## Outils en développement
 
