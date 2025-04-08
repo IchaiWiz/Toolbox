@@ -87,7 +87,7 @@ def format_path_error(path: str, error_type: str) -> Dict[str, Any]:
     # Gérer les chemins Windows avec C: ou autre lettre de lecteur
     if re.match(r'^[a-zA-Z]:\\', clean_path):
         # Remplacer les doubles backslashes par un seul
-        clean_path = re.sub(r'\\+', '\\', clean_path)
+        clean_path = re.sub(r'\\+', r'\\\\', clean_path)
         
     # Gérer les chemins avec caractères d'échappement
     if '%3A' in clean_path:
@@ -104,7 +104,7 @@ def format_path_error(path: str, error_type: str) -> Dict[str, Any]:
     if '/' in clean_path:
         clean_path = re.sub(r'/+', '/', clean_path)
     if '\\' in clean_path:
-        clean_path = re.sub(r'\\+', r'\\', clean_path)
+        clean_path = re.sub(r'\\+', r'\\\\', clean_path)
     
     # Essayer de normaliser le chemin avec Path si possible
     try:

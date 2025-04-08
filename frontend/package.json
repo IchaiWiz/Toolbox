@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
 "scripts": {
-  "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
+  "dev": "concurrently \"vite\" \"cd ../backend && call venv/Scripts/activate && python -m uvicorn main:app --reload\"",
   "frontend": "vite",
   "backend": "cd ../backend && call venv/Scripts/activate && python -m uvicorn main:app --reload",
   "build": "tsc -b && vite build",

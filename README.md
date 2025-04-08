@@ -1,15 +1,15 @@
 # Toolbox
 
-Ce dépôt contient un projet fullstack avec un frontend React et un backend Python qui fournit une boîte à outils pour diverses opérations sur les fichiers. Ces outils sont particulièrement pertinents pour travailler avec des modèles de langage (LLM) comme ChatGPT ou Claude, facilitant la préparation et l'organisation des données.
+This repository contains a fullstack project with a React frontend and a Python backend that provides a toolbox for various file operations. These tools are particularly relevant for working with language models (LLMs) like ChatGPT or Claude, facilitating data preparation and organization.
 
-> **Note importante:** Actuellement, seul l'outil de copie avancée est implémenté et fonctionnel. Les autres outils (sauvegarde, analyse, WinMerge, détection de doublons, structuration par IA) sont en cours de développement.
+> **Important note:** Currently, only the advanced copy tool is implemented and functional. Other tools (backup, analysis, WinMerge, duplicate detection, AI structuring) are under development.
 
-## Prérequis
+## Prerequisites
 
 ### Node.js
 
-1. Téléchargez et installez Node.js depuis [le site officiel](https://nodejs.org/)
-2. Vérifiez l'installation avec les commandes:
+1. Download and install Node.js from [the official website](https://nodejs.org/)
+2. Verify the installation with the commands:
    ```
    node --version
    npm --version
@@ -17,34 +17,34 @@ Ce dépôt contient un projet fullstack avec un frontend React et un backend Pyt
 
 ### Python
 
-1. Téléchargez et installez Python depuis [le site officiel](https://www.python.org/downloads/)
-   - Sur Linux, vous pouvez utiliser votre gestionnaire de paquets (apt, yum, etc.)
-2. Vérifiez l'installation avec la commande:
+1. Download and install Python from [the official website](https://www.python.org/downloads/)
+   - On Linux, you can use your package manager (apt, yum, etc.)
+2. Verify the installation with the command:
    ```
-   python --version   # Sur Windows
-   python3 --version  # Sur Linux/macOS (selon la configuration)
+   python --version   # On Windows
+   python3 --version  # On Linux/macOS (depending on configuration)
    ```
 
 ## Installation
 
-1. Clonez le dépôt:
+1. Clone the repository:
    ```
    git clone https://github.com/IchaiWiz/Toolbox
    ```
 
-2. Accédez au dossier du projet:
+2. Navigate to the project folder:
    ```
    cd toolbox
    ```
 
-3. Installez les dépendances du frontend:
+3. Install frontend dependencies:
    ```
    cd frontend
    npm install
    cd ..
    ```
 
-4. Configurez l'environnement Python pour le backend:
+4. Configure the Python environment for the backend:
    
    **Windows:**
    ```
@@ -64,9 +64,9 @@ Ce dépôt contient un projet fullstack avec un frontend React et un backend Pyt
    cd ..
    ```
 
-## Lancement du projet
+## Starting the project
 
-Pour lancer simultanément le frontend et le backend:
+To launch both the frontend and backend simultaneously:
 
 **Windows:**
 ```
@@ -80,45 +80,45 @@ cd frontend
 npm run dev
 ```
 
-Cette commande va:
-- Démarrer le serveur frontend (Vite)
-- Activer l'environnement virtuel Python
-- Démarrer le serveur backend (FastAPI avec Uvicorn)
+This command will:
+- Start the frontend server (Vite)
+- Activate the Python virtual environment
+- Start the backend server (FastAPI with Uvicorn)
 
-> **Note:** Sur Linux/macOS, vous devrez peut-être modifier le script dans `package.json` pour utiliser la bonne commande d'activation de l'environnement virtuel. Remplacez `call venv/Scripts/activate` par `source venv/bin/activate` dans le script `backend`.
+> **Note:** On Linux/macOS, you may need to modify the script in `package.json` to use the correct virtual environment activation command. Replace `call venv/Scripts/activate` with `source venv/bin/activate` in the `dev` script.
 
-Le frontend sera accessible à l'adresse: http://localhost:5173
-Le backend sera accessible à l'adresse: http://localhost:8000
+The frontend will be accessible at: http://localhost:5173
+The backend will be accessible at: http://localhost:8000
 
 ## Tests
 
-Pour exécuter les tests du backend Python:
+To run the Python backend tests:
 
 ```
 cd backend
 python -m pytest
 ```
 
-Les tests vérifient le bon fonctionnement des routes API et des utilitaires.
+The tests verify the proper functioning of API routes and utilities.
 
-## Fonctionnalités
+## Features
 
-### Outil de Copie Avancée (Disponible)
+### Advanced Copy Tool (Available)
 
-L'outil de copie permet de:
-- Sélectionner des fichiers et dossiers à copier
-- Exclure certains fichiers selon des extensions ou motifs
-- Copier le contenu dans le presse-papier
-- Gérer un historique des opérations de copie
-- Obtenir des statistiques sur les fichiers copiés
+The copy tool allows you to:
+- Select files and folders to copy
+- Exclude certain files based on extensions or patterns
+- Copy content to the clipboard
+- Manage a history of copy operations
+- Get statistics on copied files
 
-Ces fonctionnalités sont particulièrement utiles pour préparer des données à soumettre aux LLM comme ChatGPT ou Claude, en permettant une sélection précise des fichiers de code source.
+These features are particularly useful for preparing data to submit to LLMs like ChatGPT or Claude, by allowing precise selection of source code files.
 
-## Outils en développement
+## Tools in development
 
-Les fonctionnalités suivantes sont prévues mais non encore implémentées:
-- Sauvegarde de fichiers
-- Analyse de fichiers
-- Intégration avec WinMerge
-- Détection de fichiers en double
-- Structuration de fichiers assistée par IA 
+The following features are planned but not yet implemented:
+- File backup
+- File analysis
+- WinMerge integration
+- Duplicate file detection
+- AI-assisted file structuring 
