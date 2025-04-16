@@ -4,6 +4,7 @@ import { useHistoryManager } from "./useHistoryManager";
 import { copyToolApi } from "./api";
 import { createApiPayload } from "./utils";
 import { useTabs } from "@/contexts/TabsContext";
+import { normalizePath } from './utils';
 
 // Clés de stockage local pour l'état de l'outil
 const STORAGE_KEY_CONFIG = "copy-tool-current-config";
@@ -205,10 +206,13 @@ export function CopyToolProvider({ children }: CopyToolProviderProps) {
   const addDirectory = () => {
     if (!directoryInput.trim()) return;
     
-    if (!config.directories.includes(directoryInput)) {
+    // Normaliser le chemin pour éviter les problèmes avec les backslashes sous Windows
+    const normalizedPath = normalizePath(directoryInput.trim());
+    
+    if (!config.directories.includes(normalizedPath)) {
       setConfig({
         ...config,
-        directories: [...config.directories, directoryInput]
+        directories: [...config.directories, normalizedPath]
       });
     }
     
@@ -219,10 +223,13 @@ export function CopyToolProvider({ children }: CopyToolProviderProps) {
   const addFile = () => {
     if (!fileInput.trim()) return;
     
-    if (!config.files.includes(fileInput)) {
+    // Normaliser le chemin pour éviter les problèmes avec les backslashes sous Windows
+    const normalizedPath = normalizePath(fileInput.trim());
+    
+    if (!config.files.includes(normalizedPath)) {
       setConfig({
         ...config,
-        files: [...config.files, fileInput]
+        files: [...config.files, normalizedPath]
       });
     }
     
@@ -292,7 +299,14 @@ export function CopyToolProvider({ children }: CopyToolProviderProps) {
   const editItem = (list: keyof CopyConfig, index: number, newValue: string) => {
     if (Array.isArray(config[list]) && newValue.trim()) {
       const newList = [...(config[list] as string[])];
-      newList[index] = newValue.trim();
+      
+      // Normaliser les chemins pour les listes de répertoires et fichiers
+      if (list === 'directories' || list === 'files') {
+        newList[index] = normalizePath(newValue.trim());
+      } else {
+        newList[index] = newValue.trim();
+      }
+      
       setConfig({
         ...config,
         [list]: newList
@@ -364,11 +378,20 @@ export function CopyToolProvider({ children }: CopyToolProviderProps) {
     setResults(null);
     
     try {
+      console.log("CopyTool: Démarrage du scan avec la configuration:", config);
+      
       // Créer le payload pour l'API
       const payload = createApiPayload(config);
+      console.log("CopyTool: Payload créé pour l'API:", payload);
       
       // Utiliser le service API pour scanner et formater les fichiers
+      console.log("CopyTool: Appel de l'API analyzeFiles...");
       const result = await copyToolApi.analyzeFiles(payload);
+      console.log("CopyTool: Résultat de l'analyse:", {
+        totalMatches: result.totalMatches,
+        invalidPaths: result.invalid_paths?.length || 0,
+        hasContent: !!result.formattedContent
+      });
       
       // Mettre à jour les résultats
       setResults(result);
@@ -377,9 +400,11 @@ export function CopyToolProvider({ children }: CopyToolProviderProps) {
       saveToHistory(config);
       
     } catch (err) {
+      console.error("CopyTool: Erreur lors du scan:", err);
       setError(err instanceof Error ? err.message : "Erreur inconnue");
     } finally {
       setIsLoading(false);
+      console.log("CopyTool: Scan terminé");
     }
   };
 

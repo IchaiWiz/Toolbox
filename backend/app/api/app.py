@@ -1,16 +1,24 @@
 """
 Configuration de l'application FastAPI
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 from fastapi.responses import JSONResponse
+import logging
+import time
 
-# On garde seulement copy
-# from ..routes import analyse, backup, copy, winmerge, duplicate_detection, ai_structure
-from ..routes import copy
+# Importer les routeurs spécifiquement
+from ..routes.copy import router as copy_router
+from ..routes.duplicate_detection import router as duplicate_detection_router
+from ..routes.winmerge import router as winmerge_router
+from ..routes.ai_structure import router as ai_structure_router
+from ..routes.analyse import router as analyse_router
+from ..routes.backup import router as backup_router
 from .endpoints import health_router
 
+# Configuration du logger
+logger = logging.getLogger("toolbox.api")
 
 def create_app() -> FastAPI:
     """
@@ -19,6 +27,8 @@ def create_app() -> FastAPI:
     Returns:
         Application FastAPI configurée
     """
+    logger.info("Création de l'application FastAPI")
+    
     app = FastAPI(
         title="ToolBox API",
         description="API pour l'application ToolBox",
@@ -34,13 +44,52 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Inclure les routeurs sans le préfixe /api car ils ont déjà leurs propres préfixes
-    # app.include_router(analyse)
-    # app.include_router(backup)
-    app.include_router(copy)
-    # app.include_router(winmerge)
-    # app.include_router(duplicate_detection)
-    # app.include_router(ai_structure)
+    # Middleware pour logger les requêtes
+    @app.middleware("http")
+    async def log_requests(request: Request, call_next):
+        start_time = time.time()
+        
+        # Générer un ID unique pour la requête
+        request_id = f"{int(start_time * 1000)}"
+        
+        # Logger le début de la requête
+        logger.info(f"[{request_id}] Début de la requête {request.method} {request.url.path}")
+        
+        try:
+            # Exécuter la requête
+            response = await call_next(request)
+            
+            # Calculer la durée
+            process_time = (time.time() - start_time) * 1000
+            logger.info(f"[{request_id}] Fin de la requête {request.method} {request.url.path} - Status: {response.status_code} - Durée: {process_time:.2f}ms")
+            
+            return response
+        except Exception as e:
+            # En cas d'erreur pendant le traitement
+            process_time = (time.time() - start_time) * 1000
+            logger.error(f"[{request_id}] Erreur lors de la requête {request.method} {request.url.path} - Durée: {process_time:.2f}ms - {str(e)}")
+            
+            return JSONResponse(
+                status_code=500,
+                content={"detail": "Erreur interne du serveur"}
+            )
+    
+    # Gestion globale des exceptions non gérées
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        logger.error(f"Exception non gérée: {request.method} {request.url.path} - {str(exc)}", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Erreur interne du serveur: {str(exc)}"}
+        )
+
+    # Inclure les routeurs
+    app.include_router(copy_router)
+    app.include_router(duplicate_detection_router)
+    app.include_router(winmerge_router)
+    app.include_router(ai_structure_router)
+    app.include_router(analyse_router)
+    app.include_router(backup_router)
     
     # Ajouter le router de santé
     app.include_router(health_router)
@@ -83,4 +132,5 @@ def create_app() -> FastAPI:
         
         return JSONResponse(content=results)
     
+    logger.info("Application FastAPI créée et configurée")
     return app 

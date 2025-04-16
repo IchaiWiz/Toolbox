@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { Filter, Clipboard, Check, AlertCircle, Loader2, ArrowDown, ArrowUp } from "lucide-react";
+import { Filter, Clipboard, Check, AlertCircle, Loader2, ArrowDown, ArrowUp, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -8,6 +8,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
 import { useCopyTool, CopyToolProvider, CopyToolContext } from "./CopyToolContext";
 import { StatsDisplay, ExtensionStats, FileList } from "./components";
@@ -180,6 +181,49 @@ function ResultsPanelContent() {
             <p className="text-muted-foreground">
               Aucun fichier ne correspond à vos critères
             </p>
+            
+            {/* Afficher les chemins invalides s'ils existent */}
+            {results.invalid_paths && results.invalid_paths.length > 0 && (
+              <div className="mt-4 w-full max-w-xl">
+                <Accordion type="single" collapsible defaultValue="invalid-paths">
+                  <AccordionItem value="invalid-paths">
+                    <AccordionTrigger className="text-sm text-destructive">
+                      <span className="flex items-center">
+                        <AlertTriangle className="h-4 w-4 mr-2" />
+                        <span>
+                          {results.invalid_paths.some(p => p.original_path === "Analyse globale")
+                            ? "Erreurs d'analyse"
+                            : `Chemins problématiques (${results.invalid_paths.length})`}
+                        </span>
+                      </span>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-2 max-h-60 overflow-y-auto">
+                        {results.invalid_paths.map((error, index) => (
+                          <div 
+                            key={index} 
+                            className={`text-sm p-2 rounded ${
+                              error.original_path === "Analyse globale"
+                                ? "bg-destructive/20 border border-destructive"
+                                : "bg-amber-100 dark:bg-amber-950/30"
+                            }`}
+                          >
+                            {error.original_path !== "Analyse globale" && (
+                              <p><strong>Chemin original:</strong> {error.original_path}</p>
+                            )}
+                            <p><strong>{error.original_path === "Analyse globale" ? "Erreur:" : "Problème:"}</strong> {error.message}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        <p>L'application a rencontré des problèmes mais a continué à fonctionner.</p>
+                        <p>Vous pouvez réessayer en excluant les dossiers problématiques.</p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+            )}
           </div>
         ) : (
           /* Affichage des résultats */
@@ -189,6 +233,35 @@ function ResultsPanelContent() {
             
             {/* Statistiques par extension */}
             {results.stats && <ExtensionStats stats={results.stats} />}
+            
+            {/* Afficher les chemins invalides s'ils existent, même avec des résultats */}
+            {results.invalid_paths && results.invalid_paths.length > 0 && (
+              <div className="mb-4 w-full">
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="invalid-paths">
+                    <AccordionTrigger className="text-sm text-amber-600">
+                      <span className="flex items-center">
+                        <AlertTriangle className="h-4 w-4 mr-2" />
+                        Avertissement: {results.invalid_paths.length} chemin(s) avec des problèmes d'accès
+                      </span>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-2 max-h-60 overflow-y-auto">
+                        {results.invalid_paths.map((error, index) => (
+                          <div key={index} className="text-sm bg-amber-100 dark:bg-amber-950/30 p-2 rounded">
+                            <p><strong>Chemin:</strong> {error.original_path}</p>
+                            <p><strong>Problème:</strong> {error.message}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        Note: L'analyse des fichiers a continué malgré ces erreurs d'accès.
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+            )}
             
             {/* Nombre de fichiers trouvés et boutons de tri */}
             <div className="mb-4 flex justify-between items-center">

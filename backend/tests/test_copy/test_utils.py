@@ -79,11 +79,21 @@ class TestFileUtils:
         # Test de base sans filtres
         results = scan_directory(test_directory)
         
+        # Vérifier que le résultat est au format attendu
+        assert "files" in results
+        assert "errors" in results
+        
+        files = results["files"]
+        errors = results["errors"]
+        
         # 6 fichiers au total dans notre structure
-        assert len(results) == 6
+        assert len(files) == 6
+        
+        # Pas d'erreurs attendues
+        assert len(errors) == 0
         
         # Vérifier qu'ils ont tous les propriétés attendues
-        for file in results:
+        for file in files:
             assert "path" in file
             assert "name" in file
             assert "size" in file
@@ -98,11 +108,13 @@ class TestFileUtils:
             recursive=True
         )
         
+        files = results["files"]
+        
         # Vérifier que les fichiers .txt sont exclus
-        assert all(file["extension"] != "txt" for file in results)
+        assert all(file["extension"] != "txt" for file in files)
         
         # Vérifier que les autres types de fichiers sont inclus
-        assert any(file["extension"] == "py" for file in results)
+        assert any(file["extension"] == "py" for file in files)
     
     def test_scan_directory_with_patterns(self, test_directory):
         """Test de la fonction scan_directory avec filtrage par motifs"""
@@ -113,11 +125,13 @@ class TestFileUtils:
             recursive=True
         )
         
+        files = results["files"]
+        
         # Vérifier que les fichiers contenant 'hidden' sont exclus
-        assert all("hidden" not in file["name"] for file in results)
+        assert all("hidden" not in file["name"] for file in files)
         
         # Vérifier que les autres fichiers sont inclus
-        assert any("file1" in file["name"] for file in results)
+        assert any("file1" in file["name"] for file in files)
     
     def test_scan_directory_non_recursive(self, test_directory):
         # Test sans récursion
@@ -126,9 +140,11 @@ class TestFileUtils:
             recursive=False
         )
         
+        files = results["files"]
+        
         # 4 fichiers au niveau racine
-        assert len(results) == 4
-        assert all("subdir" not in file["path"] for file in results)
+        assert len(files) == 4
+        assert all("subdir" not in file["path"] for file in files)
     
     def test_read_file_content(self, test_directory):
         # Tester la lecture d'un fichier existant

@@ -4,9 +4,10 @@
   "version": "0.0.0",
   "type": "module",
 "scripts": {
-  "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
+  "dev": "node scripts/start.js",
   "frontend": "vite",
-  "backend": "cd ../backend && call venv/Scripts/activate && python -m uvicorn main:app --reload",
+  "backend": "cd ../backend && call venv/Scripts/activate && set TOOLBOX_LOG_LEVEL=WARNING && python -m uvicorn main:app --reload --log-level warning",
+  "backend-debug": "cd ../backend && call venv/Scripts/activate && set TOOLBOX_LOG_LEVEL=DEBUG && python -m uvicorn main:app --reload --log-level debug",
   "build": "tsc -b && vite build",
   "lint": "eslint .",
   "preview": "vite preview"

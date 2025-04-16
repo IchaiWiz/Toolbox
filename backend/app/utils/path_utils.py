@@ -14,6 +14,10 @@ def sanitize_path(path: str) -> str:
     Returns:
         Chemin normalisé et sécurisé
     """
+    # Si le chemin est None ou vide, retourner une chaîne vide
+    if not path:
+        return ""
+        
     # Supprimer les guillemets au début et à la fin du chemin
     if path.startswith('"') and path.endswith('"'):
         path = path[1:-1]
@@ -27,13 +31,22 @@ def sanitize_path(path: str) -> str:
     elif path.startswith("'") and path.endswith("'"):
         path = path[1:-1]
     
+    # Pour les chemins Windows avec espaces, essayer de préserver le format exact
+    windows_path = False
+    if re.match(r'^[a-zA-Z]:\\', path):
+        windows_path = True
+    
     try:
         # Normaliser le chemin (résoudre .., . et les slashes dupliqués)
-        # Utiliser Path pour une meilleure gestion cross-platform
-        normalized = str(Path(path))
+        # Pour Windows, préserver le format original si possible
+        if windows_path:
+            # Utiliser os.path.normpath pour les chemins Windows
+            normalized = os.path.normpath(path)
+        else:
+            # Utiliser Path pour une meilleure gestion cross-platform
+            normalized = str(Path(path))
         
         # Retirer les caractères potentiellement dangereux sauf ":" pour Windows
-        # Cette liste peut être ajustée selon les besoins
         unsafe_chars = re.compile(r'[<>"|?*]')
         sanitized = unsafe_chars.sub('_', normalized)
         
@@ -57,8 +70,24 @@ def is_valid_directory(directory: str) -> bool:
     Returns:
         True si le répertoire est valide, False sinon
     """
-    path = Path(directory)
-    return path.exists() and path.is_dir() and os.access(directory, os.R_OK)
+    # Essayer avec différentes variantes du chemin
+    paths_to_try = [
+        directory,
+        directory.strip('"\''),  # Sans guillemets
+        str(Path(directory)) if not isinstance(directory, Path) else str(directory),  # Normalisé par Path
+        os.path.normpath(directory)  # Normalisé par os.path
+    ]
+    
+    for path in paths_to_try:
+        try:
+            path_obj = Path(path)
+            if path_obj.exists() and path_obj.is_dir() and os.access(str(path_obj), os.R_OK):
+                return True
+        except Exception:
+            # Ignorer les erreurs et continuer avec la prochaine variante
+            continue
+    
+    return False
 
 
 def format_path_error(path: str, error_type: str) -> Dict[str, Any]:
@@ -72,46 +101,35 @@ def format_path_error(path: str, error_type: str) -> Dict[str, Any]:
     Returns:
         Dictionnaire contenant les détails de l'erreur
     """
-    # Nettoyer le chemin des caractères problématiques et des notations spéciales
-    clean_path = path
+    # Si le chemin est None ou vide
+    if not path:
+        error_message = "Chemin vide ou non spécifié"
+        return {
+            "original_path": "",
+            "clean_path": "",
+            "error_type": error_type,
+            "message": error_message
+        }
     
-    # Supprimer les guillemets au début et à la fin du chemin
-    if clean_path.startswith('"') and clean_path.endswith('"'):
-        clean_path = clean_path[1:-1]
-    elif clean_path.startswith("'") and clean_path.endswith("'"):
-        clean_path = clean_path[1:-1]
+    # Utiliser la fonction sanitize_path pour nettoyer le chemin de manière cohérente
+    # avec le reste de l'application
+    clean_path = sanitize_path(path)
     
-    # Supprimer les espaces inutiles
-    clean_path = clean_path.strip()
-    
-    # Gérer les chemins Windows avec C: ou autre lettre de lecteur
+    # Pour les chemins Windows spécifiquement, s'assurer que les backslashes sont correctement gérés
     if re.match(r'^[a-zA-Z]:\\', clean_path):
-        # Remplacer les doubles backslashes par un seul
-        clean_path = re.sub(r'\\+', '\\', clean_path)
-        
+        # Remplacer les doubles backslashes par un seul (utiliser r'\' pour éviter les problèmes d'échappement)
+        clean_path = re.sub(r'\\+', r'\\', clean_path)
+    
     # Gérer les chemins avec caractères d'échappement
     if '%3A' in clean_path:
         clean_path = clean_path.replace('%3A', ':')
-        
+    
     # Gérer les chemins avec formatage spécial (ex: /c%3A/Users/...)
     if clean_path.startswith('/') and re.search(r'/[a-zA-Z]%3A/', clean_path):
         match = re.search(r'/([a-zA-Z])%3A/', clean_path)
         if match:
             drive_letter = match.group(1)
             clean_path = re.sub(r'/[a-zA-Z]%3A/', f'{drive_letter}:/', clean_path)
-    
-    # Nettoyer les doubles slashes
-    if '/' in clean_path:
-        clean_path = re.sub(r'/+', '/', clean_path)
-    if '\\' in clean_path:
-        clean_path = re.sub(r'\\+', r'\\', clean_path)
-    
-    # Essayer de normaliser le chemin avec Path si possible
-    try:
-        clean_path = str(Path(clean_path))
-    except Exception:
-        # Si la normalisation échoue, garder le chemin tel quel
-        pass
     
     # Créer le message d'erreur approprié
     error_message = ""

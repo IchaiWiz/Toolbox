@@ -18,6 +18,13 @@ export interface FileMatch {
   extension: string;
 }
 
+export interface PathError {
+  original_path: string;
+  clean_path: string;
+  error_type: string;
+  message: string;
+}
+
 export interface FileStats {
   totalLines: number;
   totalWords: number;
@@ -35,6 +42,7 @@ export interface CopyResult {
   totalMatches: number;
   formattedContent: string;
   stats: FileStats;
+  invalid_paths?: PathError[];
 }
 
 // API payload types
@@ -73,7 +81,8 @@ export const DEFAULT_EXCLUDED_DIRECTORIES = [
   "coverage",
   "tmp",
   "temp",
-  ".vite"
+  ".vite",
+  "vendor"
 ];
 
 // Motifs communs à exclure par défaut

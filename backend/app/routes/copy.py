@@ -3,10 +3,14 @@ from typing import Dict, Any, List, Optional, Union
 from pydantic import BaseModel, Field
 import os
 import re
+import logging
 from pathlib import Path
 
 from ..utils.file_utils import scan_directory, read_file_content, format_file_for_copy
 from ..utils.path_utils import is_valid_directory, sanitize_path, format_path_error
+
+# Configuration du logger
+logger = logging.getLogger("toolbox.copy")
 
 router = APIRouter(
     prefix="/api/v1/copy",
@@ -56,41 +60,58 @@ async def scan_for_files(request: AdvancedCopyRequest):
     """
     Scanne les fichiers selon les critères spécifiés
     """
+    logger.info(f"Démarrage du scan avec {len(request.directories)} dossiers et {len(request.files)} fichiers")
+    
     matches = []
     total_subdirectories = 0
     invalid_paths = []
     
-    # Vérifier si les répertoires existent
-    valid_directories_found = False
-    
     # Analyser les dossiers spécifiés
     for directory in request.directories:
         dir_path = sanitize_path(directory)
-        if not is_valid_directory(dir_path):
-            invalid_paths.append(format_path_error(directory, "not_found"))
-            continue
-            
-        valid_directories_found = True
+        logger.info(f"Traitement du dossier: {dir_path}")
+        
         try:
+            if not is_valid_directory(dir_path):
+                logger.warning(f"Dossier non valide: {dir_path}")
+                invalid_paths.append(format_path_error(directory, "not_found"))
+                continue
+                
             # Calculer le nombre total de sous-dossiers
             if request.recursive:
-                for root, dirs, _ in os.walk(dir_path):
-                    # Filtrer les sous-dossiers exclus
-                    if request.rules.exclude_directories:
-                        dirs[:] = [d for d in dirs if d not in request.rules.exclude_directories 
-                                  and not any(Path(os.path.join(root, d)).match(f"**/{excluded}/**") 
-                                             for excluded in request.rules.exclude_directories)]
-                    
-                    total_subdirectories += len(dirs)
+                try:
+                    for root, dirs, _ in os.walk(dir_path, onerror=lambda e: None):
+                        # Filtrer les sous-dossiers exclus
+                        if request.rules.exclude_directories:
+                            dirs[:] = [d for d in dirs if d not in request.rules.exclude_directories 
+                                    and not any(Path(os.path.join(root, d)).match(f"**/{excluded}/**") 
+                                                for excluded in request.rules.exclude_directories)]
+                        
+                        total_subdirectories += len(dirs)
+                except Exception as walk_error:
+                    # Ajouter l'erreur mais continuer l'analyse
+                    logger.error(f"Erreur lors du parcours de {dir_path}: {str(walk_error)}")
+                    invalid_paths.append(format_path_error(directory, f"Erreur lors du parcours: {str(walk_error)}"))
                 
             # Rechercher les fichiers correspondants
-            dir_matches = scan_directory(
+            logger.info(f"Scan du dossier: {dir_path} (récursif={request.recursive})")
+            scan_result = scan_directory(
                 directory=dir_path,
                 exclude_extensions=request.rules.exclude_extensions,
                 exclude_patterns=request.rules.exclude_patterns,
                 exclude_directories=request.rules.exclude_directories,
                 recursive=request.recursive
             )
+            
+            # Récupérer les fichiers trouvés et les erreurs
+            dir_matches = scan_result["files"]
+            
+            # Ajouter les erreurs de scan aux chemins invalides
+            for error_msg in scan_result.get("errors", []):
+                logger.warning(f"Erreur pendant le scan: {error_msg}")
+                invalid_paths.append(format_path_error(directory, error_msg))
+            
+            logger.info(f"Trouvé {len(dir_matches)} fichiers dans {dir_path}")
             
             # Ajouter la taille formatée pour chaque fichier
             for match in dir_matches:
@@ -106,21 +127,25 @@ async def scan_for_files(request: AdvancedCopyRequest):
                 
             matches.extend(dir_matches)
         except Exception as e:
-            # Ajouter l'erreur avec le chemin formaté
+            # Ajouter l'erreur avec le chemin formaté mais continuer avec les autres dossiers
+            logger.error(f"Erreur générale lors du traitement de {dir_path}: {str(e)}")
             invalid_paths.append(format_path_error(directory, str(e)))
-    
-    # Si aucun répertoire valide n'a été trouvé et qu'il y a des répertoires spécifiés
-    # Nous levons une exception même s'il y a des erreurs de chemin collectées
-    if not valid_directories_found and request.directories and not request.files:
-        raise HTTPException(status_code=404, detail="Le répertoire spécifié n'existe pas ou n'est pas accessible")
     
     # Ajouter les fichiers spécifiques s'ils respectent les règles
     for file_path in request.files:
         try:
             file_path = sanitize_path(file_path)
+            logger.info(f"Traitement du fichier: {file_path}")
+            
             file = Path(file_path)
-            if not file.exists() or not file.is_file():
-                invalid_paths.append(format_path_error(file_path, "not_found"))
+            try:
+                if not file.exists() or not file.is_file():
+                    logger.warning(f"Fichier non trouvé: {file_path}")
+                    invalid_paths.append(format_path_error(file_path, "not_found"))
+                    continue
+            except (PermissionError, OSError) as e:
+                logger.error(f"Erreur d'accès au fichier {file_path}: {str(e)}")
+                invalid_paths.append(format_path_error(file_path, f"Erreur d'accès: {str(e)}"))
                 continue
                 
             # Vérifier si le fichier correspond aux règles
@@ -129,6 +154,7 @@ async def scan_for_files(request: AdvancedCopyRequest):
             
             # Vérification des extensions
             if extension in request.rules.exclude_extensions:
+                logger.info(f"Fichier exclu (extension): {file_path}")
                 continue
                 
             # Vérification des motifs
@@ -136,6 +162,7 @@ async def scan_for_files(request: AdvancedCopyRequest):
             if request.rules.exclude_patterns:
                 exclude_match = any(re.search(pattern, filename) for pattern in request.rules.exclude_patterns)
             if exclude_match:
+                logger.info(f"Fichier exclu (motif): {file_path}")
                 continue
             
             # Vérification des sous-dossiers exclus
@@ -147,27 +174,36 @@ async def scan_for_files(request: AdvancedCopyRequest):
                         file_is_excluded = True
                         break
             if file_is_excluded:
+                logger.info(f"Fichier exclu (dossier parent): {file_path}")
                 continue
                 
             # Calculer la taille formatée pour ce fichier spécifique
-            file_size = file.stat().st_size
-            if file_size < 1024:
-                file_size_human = f"{file_size} octets"
-            elif file_size < 1024 * 1024:
-                file_size_human = f"{file_size / 1024:.1f} Ko"
-            else:
-                file_size_human = f"{file_size / (1024 * 1024):.1f} Mo"
-                
-            # Ajouter le fichier aux résultats
-            matches.append({
-                "path": str(file).replace("\\", "/"),
-                "name": filename,
-                "size": file_size,
-                "size_human": file_size_human,
-                "extension": extension
-            })
+            try:
+                file_size = file.stat().st_size
+                if file_size < 1024:
+                    file_size_human = f"{file_size} octets"
+                elif file_size < 1024 * 1024:
+                    file_size_human = f"{file_size / 1024:.1f} Ko"
+                else:
+                    file_size_human = f"{file_size / (1024 * 1024):.1f} Mo"
+                    
+                # Ajouter le fichier aux résultats
+                matches.append({
+                    "path": str(file).replace("\\", "/"),
+                    "name": filename,
+                    "size": file_size,
+                    "size_human": file_size_human,
+                    "extension": extension
+                })
+                logger.info(f"Fichier ajouté aux résultats: {file_path}")
+            except (PermissionError, OSError) as e:
+                logger.error(f"Erreur d'accès au fichier {file_path}: {str(e)}")
+                invalid_paths.append(format_path_error(file_path, f"Erreur d'accès: {str(e)}"))
         except Exception as e:
+            logger.error(f"Erreur générale lors du traitement du fichier {file_path}: {str(e)}")
             invalid_paths.append(format_path_error(file_path, str(e)))
+    
+    logger.info(f"Scan terminé: {len(matches)} fichiers trouvés, {len(invalid_paths)} chemins invalides")
     
     result = {
         "matches": matches,
@@ -188,24 +224,43 @@ async def format_files_content(request: AdvancedCopyRequest):
     """
     Récupère et formate le contenu des fichiers sélectionnés selon les critères
     """
+    logger.info("Début du formatage du contenu des fichiers")
+    
     # D'abord, on obtient les fichiers correspondants
     scan_result = await scan_for_files(request)
     matches = scan_result["matches"]
     total_subdirectories = scan_result["total_subdirectories"]
     invalid_paths = scan_result.get("invalid_paths", [])
     
+    logger.info(f"Formatage du contenu pour {len(matches)} fichiers")
+    
     # Ensuite, on récupère et formate le contenu
     formatted_content = ""
     for file_match in matches:
         file_path = file_match["path"]
         try:
+            logger.info(f"Lecture du fichier: {file_path}")
             content = read_file_content(file_path)
-            formatted_content += format_file_for_copy(file_path, content, file_match["size_human"])
+            
+            # Si le contenu commence par "[Erreur", c'est une erreur de lecture
+            if content.startswith("[Erreur") or content.startswith("[Fichier non") or content.startswith("[Contenu binaire"):
+                logger.warning(f"Problème lors de la lecture de {file_path}: {content}")
+                formatted_content += f"=== {file_path} ({file_match['size_human']}) ===\n{content}\n\n---\n\n"
+                
+                # Ajouter aux chemins invalides si c'est une erreur
+                if not content.startswith("[Contenu binaire"):
+                    invalid_paths.append(format_path_error(file_path, content))
+            else:
+                formatted_content += format_file_for_copy(file_path, content, file_match["size_human"])
         except Exception as e:
             # En cas d'erreur, on mentionne le fichier qu'on n'a pas pu lire
-            formatted_content += f"=== {file_path} ({file_match['size_human']}) ===\nErreur lors de la lecture: {str(e)}\n\n---\n\n"
+            error_msg = f"Erreur lors de la lecture: {str(e)}"
+            logger.error(f"Erreur lors de la lecture de {file_path}: {str(e)}")
+            formatted_content += f"=== {file_path} ({file_match['size_human']}) ===\n{error_msg}\n\n---\n\n"
             # Ajouter aux chemins invalides
-            invalid_paths.append(format_path_error(file_path, str(e)))
+            invalid_paths.append(format_path_error(file_path, error_msg))
+    
+    logger.info("Formatage du contenu terminé")
     
     result = {
         "matches": matches,

@@ -26,4 +26,4 @@ TEMP_DIR = BASE_DIR / "temp"
 TEMP_DIR.mkdir(exist_ok=True)
 
 # Autres configurations
-MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", 100 * 1024 * 1024))  # 100MB par défaut 
+# La variable MAX_FILE_SIZE est déjà définie plus haut 
